@@ -1,0 +1,12 @@
+<resources>
+    <string name="app_name">lesson1</string>
+
+    <string name="api_key">27aa03909cf691819561</string>
+    <string name="api_url">https://free.currconv.com/api/v7/convert</string>
+
+    <string-array name="currency_list">
+        <item>USD</item>
+        <item>EUR</item>
+        <item>RUB</item>
+    </string-array>
+</resources>
