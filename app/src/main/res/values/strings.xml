@@ -3,6 +3,7 @@
 
     <string name="api_key">27aa03909cf691819561</string>
     <string name="api_url">https://free.currconv.com/api/v7/convert</string>
+    <string name="_1">1</string>
 
     <string-array name="currency_list">
         <item>USD</item>

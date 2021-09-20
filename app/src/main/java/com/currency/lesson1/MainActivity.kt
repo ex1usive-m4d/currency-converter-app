@@ -1,15 +1,12 @@
 package com.currency.lesson1
 
-import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.widget.*
-import java.net.URL
-import android.os.StrictMode
-import android.os.StrictMode.ThreadPolicy
-import org.json.JSONObject
-import java.math.BigDecimal
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
+import com.currency.lesson1.api.ApiRepository
 
 
 class MainActivity : AppCompatActivity() {
@@ -20,6 +17,8 @@ class MainActivity : AppCompatActivity() {
     private var convertBtn: Button? = null
     private var resultInfo: TextView? = null
 
+    lateinit var viewModel: MainViewModel
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -29,29 +28,35 @@ class MainActivity : AppCompatActivity() {
         resultInfo = findViewById(R.id.resultValue)
         convertBtn = findViewById(R.id.convertBtn)
 
-        val SDK_INT = Build.VERSION.SDK_INT
-        if (SDK_INT > 8) {
-            val policy = ThreadPolicy.Builder()
-                .permitAll().build()
-            StrictMode.setThreadPolicy(policy)
-            //your codes here
-        }
 
         convertBtn?.setOnClickListener {
             var apiResponse: String? = null;
-            if (currencyInput?.text?.toString()?.trim()?.isEmpty()!!) {
+            if (this.isBlankInput()) {
                 Toast.makeText(this, "Введите значение", Toast.LENGTH_LONG).show()
             } else {
-                var currency: String = spinnerFrom?.selectedItem.toString().plus('_').plus(spinnerTo?.selectedItem.toString())
-                var url: String = "https://free.currconv.com/api/v7/convert?q=${currency}&compact=ultra&apiKey=27aa03909cf691819561"
-                do {
-                    apiResponse = URL(url.toString()).readText()
-                    val currencyRate = JSONObject(apiResponse).get(currency.toString()).toString()
-                    Log.d("currency", currencyRate)
-                    val calculation = currencyInput?.text.toString().toDouble() * currencyRate.toString().toDouble()
-                    resultInfo?.text = "Результат:".plus(calculation.toString())
-                } while (apiResponse.isNullOrBlank())
+                val responseRate: Double = currencyRate(spinnerFrom?.selectedItem.toString(), spinnerTo?.selectedItem.toString());
+                val calculation = convertResult(responseRate, currencyInput?.text.toString().toDouble())
+                resultInfo?.text = "Результат:".plus(calculation.toString())
             }
         }
+    }
+
+    private fun currencyRate(from: String, to: String): Double {
+        val currencyRepository = ApiRepository()
+        val viewModelFactory = MainViewModelFactory(currencyRepository)
+        viewModel = ViewModelProvider(this, viewModelFactory).get(MainViewModel::class.java)
+        viewModel.getCurrencyRate(from.toString(), to.toString())
+        viewModel.apiResponse.observe(this, Observer {response ->
+            Log.d("rs", response.toString())
+        })
+        return 1.0
+    }
+
+    private fun convertResult(currencyRate: Double, inputValue: Double): Double? {
+        return inputValue * currencyRate;
+    }
+
+    private fun isBlankInput(): Boolean {
+        return this.currencyInput?.text?.toString()?.trim().isNullOrBlank()
     }
 }
