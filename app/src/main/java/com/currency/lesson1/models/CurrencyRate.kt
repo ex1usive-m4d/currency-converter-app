@@ -7,6 +7,11 @@ data class CurrencyRateResponse(val response: String)
 
 
 data class CurrencyQuery(val count: String)
+
+data class CurrencyModel(val currency: String)
+
+data class CurrenciesList(val list: List<CurrencyModel>)
+
 data class CurrencyResults(val results: List<CurrencyRate>)
 
 data class CurrencyRate(

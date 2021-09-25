@@ -13,4 +13,9 @@ class ApiRepository {
         return RetrofitInstance.apiCurrencyService
             .rawRateResponse(currencyFrom.plus("_").plus(currencyTo),"ultra", this.API_KEY)
     }
+
+    suspend fun getCurrenciesList(): Response<ResponseBody> {
+        return RetrofitInstance.apiCurrencyService
+            .getListCurrencies(this.API_KEY)
+    }
 }

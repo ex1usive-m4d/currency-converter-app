@@ -1,5 +1,6 @@
 package com.currency.lesson1
 
+import android.annotation.SuppressLint
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
@@ -18,6 +19,10 @@ import kotlinx.coroutines.withContext
 import org.json.JSONObject
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import android.widget.ArrayAdapter
+
+
+
 
 
 class MainActivity : AppCompatActivity() {
@@ -27,9 +32,13 @@ class MainActivity : AppCompatActivity() {
     private var currencyInput: EditText? = null
     private var convertBtn: Button? = null
     private var resultInfo: TextView? = null
+    private var currencyAdapter: ArrayAdapter<String>? = null
+    private var currencyRepository = ApiRepository()
+    private var viewModelFactory = MainViewModelFactory(currencyRepository)
 
     lateinit var viewModel: MainViewModel
 
+    @SuppressLint("ResourceType")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -39,25 +48,37 @@ class MainActivity : AppCompatActivity() {
         resultInfo = findViewById(R.id.resultValue)
         convertBtn = findViewById(R.id.convertBtn)
 
-        convertBtn?.setOnClickListener {
-            var apiResponse: String? = null;
-            if (this.isBlankInput()) {
-                Toast.makeText(this, "Введите значение", Toast.LENGTH_LONG).show()
-            } else {
-                currencyRateCalculation(spinnerFrom?.selectedItem.toString(), spinnerTo?.selectedItem.toString())
-            }
-        }
-    }
-
-    private fun currencyRateCalculation(from: String, to: String) {
-        val currencyRepository = ApiRepository()
-        val viewModelFactory = MainViewModelFactory(currencyRepository)
         viewModel = ViewModelProvider(this, viewModelFactory).get(MainViewModel::class.java)
-        viewModel.getCurrencyRate(from.toString(), to.toString())
+        viewModel.getCurrencyRate(spinnerFrom?.selectedItem.toString(), spinnerTo?.selectedItem.toString())
         viewModel.apiResponse.observe(this, Observer {response ->
             Log.d("rs", response.toString())
             resultInfo?.text = "Результат:".plus(convertResult(response, currencyInput?.text.toString().toDouble()))
         })
+
+        viewModel.getCurrenciesList()
+        viewModel.currenciesList.observe(this, Observer { response ->
+            Log.d("respObs", response.toMutableList().toString())
+            currencyAdapter = ArrayAdapter<String>(
+                this,
+                android.R.layout.simple_spinner_dropdown_item,
+                response.toTypedArray()
+            )
+            currencyAdapter?.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item,)
+            spinnerFrom?.setAdapter(currencyAdapter)
+            spinnerTo?.setAdapter(currencyAdapter)
+        })
+
+
+
+
+
+        convertBtn?.setOnClickListener {
+            if (this.isBlankInput()) {
+                Toast.makeText(this, "Введите значение", Toast.LENGTH_LONG).show()
+            } else {
+                this.viewModel.getCurrencyRate(spinnerFrom?.selectedItem.toString(), spinnerTo?.selectedItem.toString())
+            }
+        }
     }
 
     private fun convertResult(currencyRate: Double, inputValue: Double): Double? {

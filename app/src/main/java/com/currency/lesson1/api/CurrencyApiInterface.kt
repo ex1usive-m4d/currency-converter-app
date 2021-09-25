@@ -22,4 +22,9 @@ interface CurrencyApiInterface {
         @Query("apiKey") apiKey:String
     ): Response<ResponseBody>
 
+    @GET("api/v7/currencies")
+    suspend fun getListCurrencies(
+        @Query("apiKey") apiKey:String
+    ): Response<ResponseBody>
+
 }
