@@ -1,6 +1,9 @@
 package com.currency.lesson1
 
 import android.annotation.SuppressLint
+import android.content.Context
+import android.net.ConnectivityManager
+import android.net.NetworkInfo
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
@@ -48,6 +51,21 @@ class MainActivity : AppCompatActivity() {
         resultInfo = findViewById(R.id.resultValue)
         convertBtn = findViewById(R.id.convertBtn)
 
+        if (isInternetAvailable(this)) {
+            this.initCollectData()
+        }
+
+        convertBtn?.setOnClickListener {
+            if (this.isBlankInput()) {
+                Toast.makeText(this, "Введите значение", Toast.LENGTH_LONG).show()
+            } else {
+                this.viewModel.getCurrencyRate(spinnerFrom?.selectedItem.toString(), spinnerTo?.selectedItem.toString())
+            }
+        }
+    }
+
+    private fun initCollectData()
+    {
         viewModel = ViewModelProvider(this, viewModelFactory).get(MainViewModel::class.java)
         viewModel.getCurrencyRate(spinnerFrom?.selectedItem.toString(), spinnerTo?.selectedItem.toString())
         viewModel.apiResponse.observe(this, Observer {response ->
@@ -67,18 +85,15 @@ class MainActivity : AppCompatActivity() {
             spinnerFrom?.setAdapter(currencyAdapter)
             spinnerTo?.setAdapter(currencyAdapter)
         })
+    }
 
-
-
-
-
-        convertBtn?.setOnClickListener {
-            if (this.isBlankInput()) {
-                Toast.makeText(this, "Введите значение", Toast.LENGTH_LONG).show()
-            } else {
-                this.viewModel.getCurrencyRate(spinnerFrom?.selectedItem.toString(), spinnerTo?.selectedItem.toString())
-            }
-        }
+    fun isInternetAvailable(context: Context): Boolean {
+        var isConnected: Boolean = false // Initial Value
+        val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val activeNetwork: NetworkInfo? = connectivityManager.activeNetworkInfo
+        if (activeNetwork != null && activeNetwork.isConnected)
+            isConnected = true
+        return isConnected
     }
 
     private fun convertResult(currencyRate: Double, inputValue: Double): Double? {

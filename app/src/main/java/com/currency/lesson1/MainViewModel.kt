@@ -5,8 +5,6 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.currency.lesson1.api.ApiRepository
-import com.currency.lesson1.models.CurrencyModel
-import com.currency.lesson1.models.CurrencyRateResponse
 import kotlinx.coroutines.launch
 import okhttp3.ResponseBody
 import org.json.JSONObject
