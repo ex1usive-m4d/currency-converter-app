@@ -1,9 +1,5 @@
 package com.currency.lesson1.api
 
-import android.content.Context
-import android.net.ConnectivityManager
-import android.net.NetworkInfo
-import com.currency.lesson1.models.CurrencyRateResponse
 import com.currency.lesson1.util.RetrofitInstance
 import okhttp3.ResponseBody
 import retrofit2.Response

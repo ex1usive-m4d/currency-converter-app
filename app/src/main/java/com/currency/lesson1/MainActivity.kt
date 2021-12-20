@@ -1,33 +1,19 @@
 package com.currency.lesson1
 
 import android.annotation.SuppressLint
-import android.content.Context
-import android.net.ConnectivityManager
-import android.net.NetworkInfo
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.widget.*
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.currency.lesson1.api.ApiRepository
-import com.currency.lesson1.api.CurrencyApiInterface
-import com.google.gson.GsonBuilder
-import com.google.gson.JsonParser
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import org.json.JSONObject
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
 import android.widget.ArrayAdapter
+import com.currency.lesson1.databinding.ActivityMainBinding
+import com.currency.lesson1.util.Utility
+import com.currency.lesson1.util.Utility.convertResult
 
-
-
-
-
+//view
 class MainActivity : AppCompatActivity() {
 
     private var spinnerFrom: Spinner? = null
@@ -40,28 +26,29 @@ class MainActivity : AppCompatActivity() {
     private var viewModelFactory = MainViewModelFactory(currencyRepository)
 
     lateinit var viewModel: MainViewModel
+    private lateinit var binding: ActivityMainBinding
 
     @SuppressLint("ResourceType")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
-        spinnerFrom = findViewById(R.id.spinnerFrom)
-        spinnerTo = findViewById(R.id.spinnerTo)
-        currencyInput = findViewById(R.id.editInput)
-        resultInfo = findViewById(R.id.resultValue)
-        convertBtn = findViewById(R.id.convertBtn)
-
-        if (isInternetAvailable(this)) {
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+        if (Utility.isNetworkAvailable(this)) {
             this.initCollectData()
         }
-
+        bindElements();
         convertBtn?.setOnClickListener {
-            if (this.isBlankInput()) {
-                Toast.makeText(this, "Введите значение", Toast.LENGTH_LONG).show()
-            } else {
-                this.viewModel.getCurrencyRate(spinnerFrom?.selectedItem.toString(), spinnerTo?.selectedItem.toString())
-            }
+            this.viewModel.getCurrencyRate(spinnerFrom?.selectedItem.toString(), spinnerTo?.selectedItem.toString())
         }
+    }
+
+    private fun bindElements()
+    {
+        spinnerFrom = binding.spinnerFrom
+        spinnerTo = binding.spinnerTo
+        currencyInput = binding.editInput
+        resultInfo = binding.resultValue
+        convertBtn = binding.convertBtn
     }
 
     private fun initCollectData()
@@ -70,7 +57,12 @@ class MainActivity : AppCompatActivity() {
         viewModel.getCurrencyRate(spinnerFrom?.selectedItem.toString(), spinnerTo?.selectedItem.toString())
         viewModel.apiResponse.observe(this, Observer {response ->
             Log.d("rs", response.toString())
-            resultInfo?.text = "Результат:".plus(convertResult(response, currencyInput?.text.toString().toDouble()))
+            if (currencyInput?.let { input -> Utility.isBlankInput(input) } == true) {
+                Toast.makeText(this, "Введите значение", Toast.LENGTH_LONG).show()
+                resultInfo?.text = "Введите значение!"
+            } else {
+                resultInfo?.text = "Результат:".plus(convertResult(response, currencyInput?.text.toString().toDouble()))
+            }
         })
 
         viewModel.getCurrenciesList()
@@ -87,20 +79,4 @@ class MainActivity : AppCompatActivity() {
         })
     }
 
-    fun isInternetAvailable(context: Context): Boolean {
-        var isConnected: Boolean = false // Initial Value
-        val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-        val activeNetwork: NetworkInfo? = connectivityManager.activeNetworkInfo
-        if (activeNetwork != null && activeNetwork.isConnected)
-            isConnected = true
-        return isConnected
-    }
-
-    private fun convertResult(currencyRate: Double, inputValue: Double): Double? {
-        return inputValue * currencyRate;
-    }
-
-    private fun isBlankInput(): Boolean {
-        return this.currencyInput?.text?.toString()?.trim().isNullOrBlank()
-    }
 }

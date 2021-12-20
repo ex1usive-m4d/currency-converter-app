@@ -5,6 +5,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.currency.lesson1.api.ApiRepository
+import com.currency.lesson1.util.Utility
 import kotlinx.coroutines.launch
 import okhttp3.ResponseBody
 import org.json.JSONObject
@@ -26,8 +27,9 @@ class MainViewModel(private val apiRepository: ApiRepository) : ViewModel() {
                     currencies.add(key)
                 }
                 currenciesList.value = currencies
-
                 Log.d("resp", response.toString())
+            } else {
+
             }
         }
     }
