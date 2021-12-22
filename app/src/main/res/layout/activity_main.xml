@@ -1,77 +1,107 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/mainLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:fillViewport="true"
+    android:fitsSystemWindows="true"
     tools:context=".MainActivity">
 
-    <Spinner
-        android:id="@+id/spinnerFrom"
-        android:layout_width="360dp"
-        android:layout_height="55dp"
-        android:entries="@array/currency_list"
-        android:minHeight="48dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.093" />
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
 
-    <Spinner
-        android:id="@+id/spinnerTo"
-        android:layout_width="360dp"
-        android:layout_height="55dp"
-        android:layout_marginTop="84dp"
-        android:entries="@array/currency_list"
-        android:minHeight="48dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.49"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/spinnerFrom" />
+        <TextView
+            android:id="@+id/resultValue"
+            android:layout_width="359dp"
+            android:layout_height="33dp"
+            android:layout_marginTop="4dp"
+            android:text="Результат:"
+            android:textAlignment="viewStart"
+            android:textSize="24sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.49"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/spinnerTo" />
 
-    <EditText
-        android:id="@+id/editInput"
-        android:layout_width="360dp"
-        android:layout_height="55dp"
-        android:layout_marginTop="80dp"
-        android:ems="10"
-        android:inputType="numberDecimal"
-        android:labelFor="@id/resultValue"
-        android:text="@string/defaultInput"
-        android:textAlignment="textEnd"
-        app:layout_constraintBottom_toTopOf="@+id/resultValue"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.686"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/spinnerTo"
-        app:layout_constraintVertical_bias="0.0" />
+        <TextView
+            android:id="@+id/textView2"
+            android:layout_width="362dp"
+            android:layout_height="0dp"
+            android:layout_marginTop="4dp"
+            android:text="Конвертировть из:"
+            android:textAlignment="viewStart"
+            android:textSize="16sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.47"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
-    <Button
-        android:id="@+id/convertBtn"
-        android:layout_width="360dp"
-        android:layout_height="55dp"
-        android:layout_marginBottom="216dp"
-        android:text="Конвертировать"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.549"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/spinnerTo"
-        app:layout_constraintVertical_bias="1.0" />
+        <com.toptoche.searchablespinnerlibrary.SearchableSpinner
+            android:id="@+id/spinnerFrom"
+            android:layout_width="360dp"
+            android:layout_height="55dp"
+            android:layout_marginTop="4dp"
+            android:entries="@array/currency_list"
+            android:minHeight="48dp"
 
-    <TextView
-        android:id="@+id/resultValue"
-        android:layout_width="360dp"
-        android:layout_height="55dp"
-        android:text="Результат:"
-        android:textAlignment="viewStart"
-        android:textSize="24sp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.49"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/convertBtn"
-        tools:text="Результат:" />
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.47"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/textView2"
+            tools:text="Результат:" />
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+        <com.toptoche.searchablespinnerlibrary.SearchableSpinner
+            android:id="@+id/spinnerTo"
+            android:layout_width="360dp"
+            android:layout_height="55dp"
+            android:layout_marginTop="4dp"
+            android:entries="@array/currency_list"
+            android:minHeight="48dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.47"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/textView" />
+
+        <TextView
+            android:id="@+id/textView"
+            android:layout_width="360dp"
+            android:layout_height="27dp"
+            android:layout_marginTop="4dp"
+            android:text="Конвертировть в:"
+            android:textAlignment="viewStart"
+            android:textSize="16sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.47"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/spinnerFrom" />
+
+
+        <Button
+            android:id="@+id/convertBtn"
+            android:layout_width="360dp"
+            android:layout_height="55dp"
+            android:layout_marginTop="56dp"
+            android:text="Конвертировать"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.509"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/resultValue"></Button>
+
+        <ProgressBar
+            android:id="@+id/progressBar"
+            style="?android:attr/progressBarStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:indeterminateTint="#6C00F8"
+            android:visibility="invisible"
+            app:layout_constraintEnd_toEndOf="@+id/convertBtn"
+            app:layout_constraintHorizontal_bias="0.503"
+            app:layout_constraintStart_toStartOf="@+id/convertBtn"
+            app:layout_constraintTop_toBottomOf="@+id/resultValue" />
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</ScrollView>
