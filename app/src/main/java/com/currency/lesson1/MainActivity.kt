@@ -33,12 +33,12 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        bindElements()
         if (Utility.isNetworkAvailable(this)) {
-            this.initCollectData()
+            networkCollectData()
         }
-        bindElements();
         convertBtn?.setOnClickListener {
-            this.viewModel.getCurrencyRate(spinnerFrom?.selectedItem.toString(), spinnerTo?.selectedItem.toString())
+            viewModel.getCurrencyRate(spinnerFrom?.selectedItem.toString(), spinnerTo?.selectedItem.toString())
         }
     }
 
@@ -51,10 +51,9 @@ class MainActivity : AppCompatActivity() {
         convertBtn = binding.convertBtn
     }
 
-    private fun initCollectData()
+    private fun networkCollectData()
     {
         viewModel = ViewModelProvider(this, viewModelFactory).get(MainViewModel::class.java)
-        viewModel.getCurrencyRate(spinnerFrom?.selectedItem.toString(), spinnerTo?.selectedItem.toString())
         viewModel.apiResponse.observe(this, Observer {response ->
             Log.d("rs", response.toString())
             if (currencyInput?.let { input -> Utility.isBlankInput(input) } == true) {
@@ -64,7 +63,6 @@ class MainActivity : AppCompatActivity() {
                 resultInfo?.text = "Результат:".plus(convertResult(response, currencyInput?.text.toString().toDouble()))
             }
         })
-
         viewModel.getCurrenciesList()
         viewModel.currenciesList.observe(this, Observer { response ->
             Log.d("respObs", response.toMutableList().toString())
