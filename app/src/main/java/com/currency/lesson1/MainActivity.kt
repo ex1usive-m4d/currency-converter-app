@@ -35,10 +35,14 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
         if (Utility.isNetworkAvailable(this)) {
             networkCollectData()
+            bindElements()
+        } else {
+            Toast.makeText(this, "Нет интернета", Toast.LENGTH_LONG).show()
+            resultInfo?.text = "Нет подключения к сети Интернет!"
         }
-        bindElements()
     }
 
     private fun bindElements()
