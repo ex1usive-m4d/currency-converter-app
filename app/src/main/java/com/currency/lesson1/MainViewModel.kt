@@ -15,23 +15,19 @@ import retrofit2.Response
 class MainViewModel(private val apiRepository: ApiRepository) : ViewModel() {
 
     val apiResponse: MutableLiveData<Double> = MutableLiveData()
-    val currenciesList: MutableLiveData<MutableList<String>> = MutableLiveData()
+    val currenciesList: MutableLiveData<List<String>> = MutableLiveData()
     var cacheLastRate: CurrencyRate? = null
 
     fun getCurrenciesList() {
         if (currenciesList.value.isNullOrEmpty()) {
             viewModelScope.launch {
-                val response: Response<ResponseBody> = apiRepository.getCurrenciesList()
-                if (response.isSuccessful) {
-                    val data: String? = response.body()?.string()
-                    val currencies: MutableList<String> = ArrayList<String>()
-                    val keys = (JSONObject(data).get("results") as JSONObject).keys()
-                    for (key in keys) {
-                        currencies.add(key)
-                    }
-                    currenciesList.value = currencies
-                    Log.d("resp", response.toString())
-                }
+                val response: List<String> = apiRepository.getCurrenciesList()
+                    .asSequence()
+                    .map { it.key }
+                    .sorted()
+                    .toList()
+                Log.d("resp", response.toString())
+                currenciesList.value = response
             }
         } else {
             Log.d("cache", currenciesList.value.toString())
