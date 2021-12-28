@@ -3,8 +3,12 @@ package com.currency.lesson1.util
 import android.content.Context
 import com.currency.lesson1.BuildConfig
 import com.currency.lesson1.api.CurrencyApiInterface
+import com.currency.lesson1.models.Rate
+import com.currency.lesson1.models.RateDeserializer
+import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.google.gson.reflect.TypeToken
+import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import com.currency.lesson1.api.NetworkConnectionInterceptor
@@ -16,7 +20,7 @@ object RetrofitInstance {
 
     private var API_URL = BuildConfig.API_URL
 
-    private val gsonCurrencies by lazy {
+    public val gsonCurrencies by lazy {
         GsonBuilder()
             .registerTypeAdapter(
                 object : TypeToken<Currencies?>() {}.type,
@@ -26,7 +30,7 @@ object RetrofitInstance {
     }
 
 
-    private val gsonRate by lazy {
+    public val gsonRate by lazy {
         GsonBuilder()
             .registerTypeAdapter(
                 object : TypeToken<Rate?>() {}.type,
@@ -35,37 +39,23 @@ object RetrofitInstance {
             .create()
     }
 
-
-    fun provideConvertService(context: Context): CurrencyApiInterface {
-        val okHttpClient = OkHttpClient.Builder()
-
-        okHttpClient
-            .connectTimeout(1, TimeUnit.MINUTES)
-            .readTimeout(30, TimeUnit.SECONDS)
-            .addInterceptor(NetworkConnectionInterceptor(context))
-
-        val builder = Retrofit.Builder()
-            .baseUrl(API_URL)
-            .client(okHttpClient.build())
-            .addConverterFactory(GsonConverterFactory.create(gsonRate))
-
-        return builder.build().create(CurrencyApiInterface::class.java)
+    private val retrofit by lazy {
+        Retrofit.Builder().baseUrl(API_URL)
     }
 
-    fun provideWebService(context: Context): CurrencyApiInterface {
-        val okHttpClient = OkHttpClient.Builder()
-
-        okHttpClient
+    private val httpClient by lazy {
+        OkHttpClient.Builder()
             .connectTimeout(1, TimeUnit.MINUTES)
             .readTimeout(30, TimeUnit.SECONDS)
-            .addInterceptor(NetworkConnectionInterceptor(context))
+    }
 
-        val builder = Retrofit.Builder()
-            .baseUrl(API_URL)
-            .client(okHttpClient.build())
-            .addConverterFactory(GsonConverterFactory.create(gsonCurrencies))
-
-        return builder.build().create(CurrencyApiInterface::class.java)
+    fun provideWebService(context: Context, gson: Gson): CurrencyApiInterface {
+        val okHttpClient = httpClient.addInterceptor(NetworkConnectionInterceptor(context)).build()
+        return Retrofit.Builder().baseUrl(API_URL)
+            .client(okHttpClient)
+            .addConverterFactory(GsonConverterFactory.create(gson))
+            .build()
+            .create(CurrencyApiInterface::class.java)
     }
 
 }

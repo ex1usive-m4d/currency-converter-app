@@ -7,6 +7,7 @@ import android.util.Log
 import android.view.View
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.currency.lesson1.api.ApiRepository
@@ -27,8 +28,12 @@ class MainActivity : AppCompatActivity() {
     private var convertBtn: Button? = null
     private var resultInfo: TextView? = null
     private var progressBar: ProgressBar? = null
+    private var tryAgainBtn: Button? = null
     private var currencyAdapter: ArrayAdapter<String>? = null
     private var currencyRepository = ApiRepository(this)
+
+    private lateinit var internetLayout: ConstraintLayout
+    private lateinit var noInternetLayout: ConstraintLayout
 
     lateinit var viewModel: MainViewModel
     private lateinit var binding: ActivityMainBinding
@@ -38,13 +43,8 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        try {
-            networkCollectData()
-            bindElements()
-        } catch (e: Exception) {
-            Toast.makeText(this, e.message, Toast.LENGTH_LONG).show()
-            resultInfo?.text = "Нет подключения к сети Интернет!"
-        }
+        networkCollectData()
+        bindElements()
     }
 
     private fun bindElements()
@@ -54,8 +54,16 @@ class MainActivity : AppCompatActivity() {
         resultInfo = binding.resultValue
         convertBtn = binding.convertBtn
         progressBar = binding.progressBar
+        internetLayout = binding.internetLayout
+        noInternetLayout = binding.noInternetLayout
+        tryAgainBtn = binding.tryAgainButton
+
         convertBtn?.setOnClickListener {
             viewModel.calculateCurrencyRate(spinnerFrom?.selectedItem.toString(), spinnerTo?.selectedItem.toString())
+        }
+
+        tryAgainBtn?.setOnClickListener {
+            networkCollectData()
         }
     }
 
@@ -98,6 +106,16 @@ class MainActivity : AppCompatActivity() {
                 resultInfo?.visibility = View.VISIBLE
                 progressBar?.visibility = View.INVISIBLE
             }
+
+            NetworkApiStatus.NO_CONNECT -> {
+                noInternetLayout?.visibility = View.VISIBLE
+                internetLayout?.visibility = View.INVISIBLE
+                Toast.makeText(this, "Проверьте интернет соединение", Toast.LENGTH_LONG).show()
+            } else -> {
+                noInternetLayout?.visibility = View.INVISIBLE
+                internetLayout?.visibility = View.VISIBLE
+            }
+
         }
     }
 

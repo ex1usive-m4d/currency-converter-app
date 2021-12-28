@@ -11,7 +11,7 @@ import com.currency.lesson1.util.Utility
 import okhttp3.ResponseBody
 import retrofit2.Response
 
-enum class NetworkApiStatus { LOADING, ERROR, DONE }
+enum class NetworkApiStatus { LOADING, ERROR, DONE, NO_CONNECT, INIT }
 
 class ApiRepository(context: Context) {
 
@@ -22,10 +22,10 @@ class ApiRepository(context: Context) {
         currencyFrom: String,
         currencyTo: String
     ): Map<String, Double>? {
-        return RetrofitInstance.provideConvertService(context)
+        return RetrofitInstance.provideWebService(context, RetrofitInstance.gsonRate)
             .convertRate(Utility.getCurrencyString(currencyFrom, currencyTo), "ultra", API_KEY).rate ?: emptyMap()
     }
 
     suspend fun getCurrenciesList(): List<Currency> =
-        RetrofitInstance.provideWebService(context).currencies(this.API_KEY)?.currencies ?: emptyList()
+        RetrofitInstance.provideWebService(context, RetrofitInstance.gsonCurrencies).currencies(this.API_KEY)?.currencies ?: emptyList()
 }

@@ -6,7 +6,6 @@ buildscript {
         room_version = "2.4.0"
         lifecycle_version = "2.2.0"
         coroutines_version = "1.5.2"
-        moshi_version = "1.9.3"
         api_url = "\"https://free.currconv.com\""
         api_token = "\"27aa03909cf691819561\""
     }

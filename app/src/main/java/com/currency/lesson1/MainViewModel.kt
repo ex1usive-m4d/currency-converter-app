@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.currency.lesson1.api.ApiRepository
 import com.currency.lesson1.api.NetworkApiStatus
+import com.currency.lesson1.api.NoConnectivityException
 import com.currency.lesson1.models.CurrencyRate
 import com.currency.lesson1.util.Utility
 import kotlinx.coroutines.launch
@@ -22,6 +23,7 @@ class MainViewModel(private val apiRepository: ApiRepository) : ViewModel() {
 
     init {
         collectCurrenciesList()
+        _status.value = NetworkApiStatus.INIT
     }
 
     private fun collectCurrenciesList() {
@@ -36,6 +38,8 @@ class MainViewModel(private val apiRepository: ApiRepository) : ViewModel() {
                     Log.d("resp", response.toString())
                     currenciesList.value = response
                     _status.value = NetworkApiStatus.DONE
+                } catch (e: NoConnectivityException) {
+                    _status.value = NetworkApiStatus.NO_CONNECT
                 } catch (e: Exception) {
                     _status.value = NetworkApiStatus.ERROR
                 }
@@ -60,7 +64,9 @@ class MainViewModel(private val apiRepository: ApiRepository) : ViewModel() {
                     } else {
                         throw RuntimeException("Ошибка получения данных")
                     }
-                } catch (e: RuntimeException) {
+                } catch (e: NoConnectivityException) {
+                    _status.value = NetworkApiStatus.NO_CONNECT
+                } catch (e: Exception) {
                     _status.value = NetworkApiStatus.ERROR
                 }
             }
