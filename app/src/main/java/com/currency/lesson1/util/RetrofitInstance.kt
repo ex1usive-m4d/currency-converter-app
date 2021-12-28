@@ -29,12 +29,28 @@ object RetrofitInstance {
     private val gsonRate by lazy {
         GsonBuilder()
             .registerTypeAdapter(
-                object : TypeToken<CurrencyRateResponse?>() {}.type,
+                object : TypeToken<Rate?>() {}.type,
                 RateDeserializer()
             )
             .create()
     }
 
+
+    fun provideConvertService(context: Context): CurrencyApiInterface {
+        val okHttpClient = OkHttpClient.Builder()
+
+        okHttpClient
+            .connectTimeout(1, TimeUnit.MINUTES)
+            .readTimeout(30, TimeUnit.SECONDS)
+            .addInterceptor(NetworkConnectionInterceptor(context))
+
+        val builder = Retrofit.Builder()
+            .baseUrl(API_URL)
+            .client(okHttpClient.build())
+            .addConverterFactory(GsonConverterFactory.create(gsonRate))
+
+        return builder.build().create(CurrencyApiInterface::class.java)
+    }
 
     fun provideWebService(context: Context): CurrencyApiInterface {
         val okHttpClient = OkHttpClient.Builder()

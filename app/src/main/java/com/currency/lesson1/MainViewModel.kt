@@ -1,27 +1,19 @@
 package com.currency.lesson1
 
-import android.R
-import android.content.Context
 import android.util.Log
-import android.widget.*
-import androidx.lifecycle.*
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.currency.lesson1.api.ApiRepository
 import com.currency.lesson1.api.NetworkApiStatus
 import com.currency.lesson1.models.CurrencyRate
 import com.currency.lesson1.util.Utility
-import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
-import okhttp3.ResponseBody
-import org.json.JSONObject
-import retrofit2.Response
-import java.io.IOException
-import java.lang.Exception
-import java.lang.RuntimeException
 
 class MainViewModel(private val apiRepository: ApiRepository) : ViewModel() {
 
     val rateData: MutableLiveData<CurrencyRate> = MutableLiveData()
-    val result: MutableLiveData<String> = MutableLiveData("Результат:")
     val currenciesList: MutableLiveData<List<String>> = MutableLiveData()
     private val _status = MutableLiveData<NetworkApiStatus>()
 
@@ -36,16 +28,14 @@ class MainViewModel(private val apiRepository: ApiRepository) : ViewModel() {
         if (currenciesList.value.isNullOrEmpty()) {
             viewModelScope.launch {
                 try {
-                    async {
-                        val response: List<String> = apiRepository.getCurrenciesList()
-                            .asSequence()
-                            .map { it.key }
-                            .sorted()
-                            .toList()
-                        Log.d("resp", response.toString())
-                        currenciesList.value = response
-                        _status.value = NetworkApiStatus.DONE
-                    }.await()
+                    val response: List<String> = apiRepository.getCurrenciesList()
+                        .asSequence()
+                        .map { it.key }
+                        .sorted()
+                        .toList()
+                    Log.d("resp", response.toString())
+                    currenciesList.value = response
+                    _status.value = NetworkApiStatus.DONE
                 } catch (e: Exception) {
                     _status.value = NetworkApiStatus.ERROR
                 }
@@ -58,20 +48,18 @@ class MainViewModel(private val apiRepository: ApiRepository) : ViewModel() {
             viewModelScope.launch {
                 try {
                     _status.value = NetworkApiStatus.LOADING
-                    async {
-                        val response: Response<ResponseBody> = apiRepository.convertRate(from, to)
-                        val data: String? = response.body()?.string()
-                        val rateValue: Double =
-                            JSONObject(data).get(Utility.getCurrencyString(from, to)).toString()
-                                .toDouble()
+                    val response: Map<String, Double>? = apiRepository.convertRate(from, to)
+                    if (!response.isNullOrEmpty()) {
                         rateData.value = CurrencyRate(
-                            Utility.getCurrencyString(from, to),
-                            rateValue.toString(),
+                            response.keys.first(),
+                            response.getValue(response.keys.first()).toString(),
                             from,
                             to
                         )
                         _status.value = NetworkApiStatus.DONE
-                    }.await()
+                    } else {
+                        throw RuntimeException("Ошибка получения данных")
+                    }
                 } catch (e: RuntimeException) {
                     _status.value = NetworkApiStatus.ERROR
                 }

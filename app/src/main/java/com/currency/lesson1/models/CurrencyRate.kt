@@ -4,8 +4,7 @@ import com.google.gson.annotations.SerializedName
 
 data class CurrencyRateResponse(val response: String)
 
-
-data class Rate(val rate: String)
+data class Rate(val rate: Map<String, Double>)
 
 class Currencies (
     val currencies: List<Currency>?

@@ -13,10 +13,6 @@ object Utility {
         return inputValue * currencyRate;
     }
 
-     fun isBlankInput(currencyInput: EditText): Boolean {
-        return currencyInput.text?.toString()?.trim().isNullOrBlank()
-     }
-
     fun getCurrencyString(from: String, to: String): String {
         return from.plus("_").plus(to)
     }

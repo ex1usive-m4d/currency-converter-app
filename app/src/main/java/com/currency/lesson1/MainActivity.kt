@@ -38,7 +38,6 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
         try {
             networkCollectData()
             bindElements()
@@ -55,7 +54,6 @@ class MainActivity : AppCompatActivity() {
         resultInfo = binding.resultValue
         convertBtn = binding.convertBtn
         progressBar = binding.progressBar
-
         convertBtn?.setOnClickListener {
             viewModel.calculateCurrencyRate(spinnerFrom?.selectedItem.toString(), spinnerTo?.selectedItem.toString())
         }

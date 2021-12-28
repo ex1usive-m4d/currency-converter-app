@@ -7,6 +7,9 @@ import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import java.lang.reflect.Type
 
+
+
+
 class CurrenciesDeserializer : JsonDeserializer<Currencies?> {
 
     override fun deserialize(
@@ -33,20 +36,18 @@ class CurrenciesDeserializer : JsonDeserializer<Currencies?> {
     }
 }
 
-class RateDeserializer : JsonDeserializer<CurrencyRate?> {
+class RateDeserializer : JsonDeserializer<Rate?> {
 
     override fun deserialize(
         elem: JsonElement,
         type: Type?,
         jsonDeserializationContext: JsonDeserializationContext?
-    ): CurrencyRate? {
-        Log.d("rate", elem.asString)
-        val deserializer = jsonDeserializationContext ?: return null
-
-        val rate = elem
-            .takeIf { it.isJsonObject }
-            ?.asJsonObject
-            ?.entrySet()
-        return CurrencyRate("USD_USD", "1", "USD", "USD")
+    ): Rate {
+        return elem.asJsonObject
+            .entrySet()
+            .last()
+            .let {
+               Rate(mapOf(it.key to it.value.toString().toDouble()))
+            }
     }
 }
