@@ -1,19 +1,23 @@
 package com.currency.lesson1
 
 import android.annotation.SuppressLint
-import androidx.appcompat.app.AppCompatActivity
+import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.widget.*
+import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.currency.lesson1.api.ApiRepository
-import android.widget.ArrayAdapter
+import com.currency.lesson1.api.NetworkApiStatus
+import com.currency.lesson1.api.NoConnectivityException
 import com.currency.lesson1.databinding.ActivityMainBinding
 import com.currency.lesson1.util.Utility
 import com.currency.lesson1.util.Utility.convertResult
 import com.toptoche.searchablespinnerlibrary.SearchableSpinner
+import java.io.IOException
+import java.lang.RuntimeException
 
 //view
 class MainActivity : AppCompatActivity() {
@@ -24,8 +28,7 @@ class MainActivity : AppCompatActivity() {
     private var resultInfo: TextView? = null
     private var progressBar: ProgressBar? = null
     private var currencyAdapter: ArrayAdapter<String>? = null
-    private var currencyRepository = ApiRepository()
-    private var viewModelFactory = MainViewModelFactory(currencyRepository)
+    private var currencyRepository = ApiRepository(this)
 
     lateinit var viewModel: MainViewModel
     private lateinit var binding: ActivityMainBinding
@@ -36,11 +39,11 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        if (Utility.isNetworkAvailable(this)) {
+        try {
             networkCollectData()
             bindElements()
-        } else {
-            Toast.makeText(this, "Нет интернета", Toast.LENGTH_LONG).show()
+        } catch (e: Exception) {
+            Toast.makeText(this, e.message, Toast.LENGTH_LONG).show()
             resultInfo?.text = "Нет подключения к сети Интернет!"
         }
     }
@@ -54,25 +57,20 @@ class MainActivity : AppCompatActivity() {
         progressBar = binding.progressBar
 
         convertBtn?.setOnClickListener {
-            resultInfo?.visibility = View.GONE
-            progressBar?.visibility = ProgressBar.VISIBLE
-            convertBtn?.visibility = View.INVISIBLE
-            viewModel.getCurrencyRate(spinnerFrom?.selectedItem.toString(), spinnerTo?.selectedItem.toString())
+            viewModel.calculateCurrencyRate(spinnerFrom?.selectedItem.toString(), spinnerTo?.selectedItem.toString())
         }
     }
 
     private fun networkCollectData()
     {
-        viewModel = ViewModelProvider(this, viewModelFactory).get(MainViewModel::class.java)
-        viewModel.apiResponse.observe(this, Observer {response ->
-            Log.d("rs", response.toString())
-                resultInfo?.text = "Результат:".plus(convertResult(response, "1".toDouble()))
-                resultInfo?.visibility = View.VISIBLE
-                progressBar?.visibility = ProgressBar.INVISIBLE
-                convertBtn?.visibility = View.VISIBLE
-                convertBtn?.text = "Конвертировать"
+        viewModel = MainViewModel(currencyRepository)
+        viewModel.rateData.observe(this, Observer {rate ->
+                resultInfo?.text = "Результат:".plus(convertResult(rate.rate.toDouble(), "1".toDouble()))
         })
-        viewModel.getCurrenciesList()
+        viewModel.status.observe(this, { status ->
+            bindStatus(status)
+        })
+
         viewModel.currenciesList.observe(this, Observer { response ->
             currencyAdapter = ArrayAdapter<String>(
                 this,
@@ -80,9 +78,29 @@ class MainActivity : AppCompatActivity() {
                 response.toTypedArray()
             )
             currencyAdapter?.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-            spinnerFrom?.setAdapter(currencyAdapter)
-            spinnerTo?.setAdapter(currencyAdapter)
+            spinnerFrom?.adapter = currencyAdapter
+            spinnerTo?.adapter = currencyAdapter
         })
+    }
+
+    fun bindStatus(status: NetworkApiStatus?) {
+        when (status) {
+            NetworkApiStatus.LOADING -> {
+                resultInfo?.visibility = View.INVISIBLE
+                progressBar?.visibility = View.VISIBLE
+            }
+
+            NetworkApiStatus.ERROR -> {
+                resultInfo?.visibility = View.INVISIBLE
+                progressBar?.visibility = View.INVISIBLE
+                Toast.makeText(this, "Ошибка", Toast.LENGTH_LONG).show()
+            }
+
+            NetworkApiStatus.DONE -> {
+                resultInfo?.visibility = View.VISIBLE
+                progressBar?.visibility = View.INVISIBLE
+            }
+        }
     }
 
 }

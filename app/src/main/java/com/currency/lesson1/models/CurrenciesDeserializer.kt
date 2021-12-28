@@ -1,5 +1,6 @@
-package com.currency.lesson1.data.new
+package com.currency.lesson1.models
 
+import android.util.Log
 import com.google.gson.JsonDeserializationContext
 import com.google.gson.JsonDeserializer
 import com.google.gson.JsonElement
@@ -21,18 +22,31 @@ class CurrenciesDeserializer : JsonDeserializer<Currencies?> {
             ?.entrySet()
             ?.mapNotNull { if (it.value.isJsonObject) it.value.asJsonObject else null }
             ?.let { list: List<JsonObject> ->
-                mutableListOf<CurrencyEntityV2>().apply {
+                mutableListOf<Currency>().apply {
                     list.forEach { jsonObject ->
                         jsonObject.entrySet()
-                            .map {
-                                CurrencyEntityV2(
-                                    it.key,
-                                    deserializer.deserialize(it.value, CurrencyV2::class.java)
-                                )
-                            }.let { list -> addAll(list) }
+                            .map { Currency(it.key) }
+                            .let { list -> addAll(list) }
                     }
                 }
-            }
-            .let { Currencies(it) }
+            }.let { Currencies(it) }
+    }
+}
+
+class RateDeserializer : JsonDeserializer<CurrencyRate?> {
+
+    override fun deserialize(
+        elem: JsonElement,
+        type: Type?,
+        jsonDeserializationContext: JsonDeserializationContext?
+    ): CurrencyRate? {
+        Log.d("rate", elem.asString)
+        val deserializer = jsonDeserializationContext ?: return null
+
+        val rate = elem
+            .takeIf { it.isJsonObject }
+            ?.asJsonObject
+            ?.entrySet()
+        return CurrencyRate("USD_USD", "1", "USD", "USD")
     }
 }

@@ -1,11 +1,22 @@
 buildscript {
+    ext {
+        retrofit_version = "2.9.0"
+        okhttp3_version = "4.9.0"
+        nav_kit_version = "2.3.5"
+        room_version = "2.4.0"
+        lifecycle_version = "2.2.0"
+        coroutines_version = "1.5.2"
+        moshi_version = "1.9.3"
+        api_url = "\"https://free.currconv.com\""
+        api_token = "\"27aa03909cf691819561\""
+    }
     repositories {
         google()
         mavenCentral()
     }
     dependencies {
         classpath "com.android.tools.build:gradle:7.0.2"
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.5.30"
+        classpath 'org.jetbrains.kotlin:kotlin-gradle-plugin:1.6.10'
 
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files

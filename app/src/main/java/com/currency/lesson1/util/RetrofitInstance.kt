@@ -1,16 +1,22 @@
 package com.currency.lesson1.util
 
+import android.content.Context
+import com.currency.lesson1.BuildConfig
 import com.currency.lesson1.api.CurrencyApiInterface
-import com.currency.lesson1.data.new.Currencies
-import com.currency.lesson1.data.new.CurrenciesDeserializer
-import com.currency.lesson1.data.new.CurrencyEntityV2
 import com.google.gson.GsonBuilder
 import com.google.gson.reflect.TypeToken
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import com.currency.lesson1.api.NetworkConnectionInterceptor
+import com.currency.lesson1.models.*
+import okhttp3.*
+import java.util.concurrent.TimeUnit
 
 object RetrofitInstance {
-    private val gson by lazy {
+
+    private var API_URL = BuildConfig.API_URL
+
+    private val gsonCurrencies by lazy {
         GsonBuilder()
             .registerTypeAdapter(
                 object : TypeToken<Currencies?>() {}.type,
@@ -19,15 +25,31 @@ object RetrofitInstance {
             .create()
     }
 
-    private val retrofit by lazy {
-        Retrofit.Builder()
-            .baseUrl("https://free.currconv.com/")
-            .addConverterFactory(GsonConverterFactory.create(gson))
-            .build()
+
+    private val gsonRate by lazy {
+        GsonBuilder()
+            .registerTypeAdapter(
+                object : TypeToken<CurrencyRateResponse?>() {}.type,
+                RateDeserializer()
+            )
+            .create()
     }
 
-    val apiCurrencyService: CurrencyApiInterface by lazy {
-        retrofit.create(CurrencyApiInterface::class.java)
+
+    fun provideWebService(context: Context): CurrencyApiInterface {
+        val okHttpClient = OkHttpClient.Builder()
+
+        okHttpClient
+            .connectTimeout(1, TimeUnit.MINUTES)
+            .readTimeout(30, TimeUnit.SECONDS)
+            .addInterceptor(NetworkConnectionInterceptor(context))
+
+        val builder = Retrofit.Builder()
+            .baseUrl(API_URL)
+            .client(okHttpClient.build())
+            .addConverterFactory(GsonConverterFactory.create(gsonCurrencies))
+
+        return builder.build().create(CurrencyApiInterface::class.java)
     }
 
 }

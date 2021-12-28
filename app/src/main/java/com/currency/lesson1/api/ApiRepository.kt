@@ -1,22 +1,29 @@
 package com.currency.lesson1.api
 
-import com.currency.lesson1.data.new.CurrencyEntityV2
+import android.content.Context
+import com.currency.lesson1.BuildConfig
+import com.currency.lesson1.models.Currency
+import com.currency.lesson1.models.CurrencyRate
 import com.currency.lesson1.util.RetrofitInstance
+import com.currency.lesson1.util.Utility
 import okhttp3.ResponseBody
 import retrofit2.Response
 
-class ApiRepository {
+enum class NetworkApiStatus { LOADING, ERROR, DONE }
 
-    private val API_KEY: String = "27aa03909cf691819561";
+class ApiRepository(context: Context) {
 
-    suspend fun getCurrencyResponse(
+    private val API_KEY: String = BuildConfig.API_KEY
+    private val context: Context = context
+
+    suspend fun convertRate(
         currencyFrom: String,
         currencyTo: String
     ): Response<ResponseBody> {
-        return RetrofitInstance.apiCurrencyService
-            .rawRateResponse(currencyFrom.plus("_").plus(currencyTo), "ultra", this.API_KEY)
+        return RetrofitInstance.provideWebService(context)
+            .convertRate(Utility.getCurrencyString(currencyFrom, currencyTo), "ultra", API_KEY)
     }
 
-    suspend fun getCurrenciesList(): List<CurrencyEntityV2> =
-        RetrofitInstance.apiCurrencyService.getListCurrencies(this.API_KEY)?.currencies ?: emptyList()
+    suspend fun getCurrenciesList(): List<Currency> =
+        RetrofitInstance.provideWebService(context).currencies(this.API_KEY)?.currencies ?: emptyList()
 }

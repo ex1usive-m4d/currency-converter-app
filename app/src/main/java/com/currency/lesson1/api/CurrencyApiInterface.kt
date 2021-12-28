@@ -1,7 +1,7 @@
 package com.currency.lesson1.api
 
-import com.currency.lesson1.data.new.Currencies
-import com.currency.lesson1.data.new.CurrencyEntityV2
+import com.currency.lesson1.models.Currencies
+import com.currency.lesson1.models.CurrencyRate
 import com.currency.lesson1.models.CurrencyRateResponse
 import okhttp3.ResponseBody
 import retrofit2.Response
@@ -18,14 +18,14 @@ interface CurrencyApiInterface {
     ): CurrencyRateResponse
 
     @GET("api/v7/convert")
-    suspend fun rawRateResponse(
+    suspend fun convertRate(
         @Query("q") q:String,
         @Query("compact") compact: String = "ultra",
         @Query("apiKey") apiKey:String
     ): Response<ResponseBody>
 
     @GET("api/v7/currencies")
-    suspend fun getListCurrencies(
+    suspend fun currencies(
         @Query("apiKey") apiKey:String
     ): Currencies?
 
