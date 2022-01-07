@@ -1,11 +1,7 @@
 package com.currency.lesson1.api
 
 import com.currency.lesson1.models.Currencies
-import com.currency.lesson1.models.CurrencyRate
-import com.currency.lesson1.models.CurrencyRateResponse
 import com.currency.lesson1.models.Rate
-import okhttp3.ResponseBody
-import retrofit2.Response
 import retrofit2.http.GET
 import retrofit2.http.Query
 

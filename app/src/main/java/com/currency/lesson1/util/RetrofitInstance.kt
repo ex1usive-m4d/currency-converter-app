@@ -20,7 +20,7 @@ object RetrofitInstance {
 
     private var API_URL = BuildConfig.API_URL
 
-    public val gsonCurrencies by lazy {
+    val gsonCurrencies by lazy {
         GsonBuilder()
             .registerTypeAdapter(
                 object : TypeToken<Currencies?>() {}.type,
@@ -30,7 +30,7 @@ object RetrofitInstance {
     }
 
 
-    public val gsonRate by lazy {
+    val gsonRate by lazy {
         GsonBuilder()
             .registerTypeAdapter(
                 object : TypeToken<Rate?>() {}.type,
@@ -45,8 +45,8 @@ object RetrofitInstance {
 
     private val httpClient by lazy {
         OkHttpClient.Builder()
-            .connectTimeout(1, TimeUnit.MINUTES)
-            .readTimeout(30, TimeUnit.SECONDS)
+            .connectTimeout(20, TimeUnit.MINUTES)
+            .readTimeout(10, TimeUnit.SECONDS)
     }
 
     fun provideWebService(context: Context, gson: Gson): CurrencyApiInterface {

@@ -1,41 +1,25 @@
 package com.currency.lesson1
 
 import android.annotation.SuppressLint
-import android.content.Context
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import android.widget.*
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.currency.lesson1.api.ApiRepository
 import com.currency.lesson1.api.NetworkApiStatus
-import com.currency.lesson1.api.NoConnectivityException
 import com.currency.lesson1.databinding.ActivityMainBinding
-import com.currency.lesson1.util.Utility
 import com.currency.lesson1.util.Utility.convertResult
-import com.toptoche.searchablespinnerlibrary.SearchableSpinner
-import java.io.IOException
-import java.lang.RuntimeException
 
-//view
 class MainActivity : AppCompatActivity() {
 
-    private var spinnerFrom: SearchableSpinner? = null
-    private var spinnerTo: SearchableSpinner? = null
-    private var convertBtn: Button? = null
-    private var resultInfo: TextView? = null
-    private var progressBar: ProgressBar? = null
-    private var tryAgainBtn: Button? = null
+
     private var currencyAdapter: ArrayAdapter<String>? = null
     private var currencyRepository = ApiRepository(this)
 
-    private lateinit var internetLayout: ConstraintLayout
-    private lateinit var noInternetLayout: ConstraintLayout
-
-    lateinit var viewModel: MainViewModel
+    private val viewModel by viewModels<MainViewModel> { MainViewModelFactory(currencyRepository, this) }
     private lateinit var binding: ActivityMainBinding
 
     @SuppressLint("ResourceType")
@@ -43,36 +27,10 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        networkCollectData()
-        bindElements()
-    }
-
-    private fun bindElements()
-    {
-        spinnerFrom = binding.spinnerFrom
-        spinnerTo = binding.spinnerTo
-        resultInfo = binding.resultValue
-        convertBtn = binding.convertBtn
-        progressBar = binding.progressBar
-        internetLayout = binding.internetLayout
-        noInternetLayout = binding.noInternetLayout
-        tryAgainBtn = binding.tryAgainButton
-
-        convertBtn?.setOnClickListener {
-            viewModel.calculateCurrencyRate(spinnerFrom?.selectedItem.toString(), spinnerTo?.selectedItem.toString())
-        }
-
-        tryAgainBtn?.setOnClickListener {
-            networkCollectData()
-        }
-    }
-
-    private fun networkCollectData()
-    {
-        viewModel = MainViewModel(currencyRepository)
         viewModel.rateData.observe(this, Observer {rate ->
-                resultInfo?.text = "Результат:".plus(convertResult(rate.rate.toDouble(), "1".toDouble()))
+            binding.resultValue?.text = "Результат:".plus(convertResult(rate.rate.toDouble(), "1".toDouble()))
         })
+
         viewModel.status.observe(this, { status ->
             bindStatus(status)
         })
@@ -84,33 +42,40 @@ class MainActivity : AppCompatActivity() {
                 response.toTypedArray()
             )
             currencyAdapter?.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-            spinnerFrom?.adapter = currencyAdapter
-            spinnerTo?.adapter = currencyAdapter
+            binding.spinnerFrom?.adapter = currencyAdapter
+            binding.spinnerTo?.adapter = currencyAdapter
         })
+
+        binding.convertBtn?.setOnClickListener {
+            viewModel.calculateCurrencyRate(binding.spinnerFrom?.selectedItem.toString(), binding.spinnerTo?.selectedItem.toString())
+        }
+
+        binding.tryAgainButton?.setOnClickListener {
+            viewModel.pingStatus()
+            viewModel.calculateCurrencyRate(binding.spinnerFrom?.selectedItem.toString(), binding.spinnerTo?.selectedItem.toString())
+        }
     }
 
-    fun bindStatus(status: NetworkApiStatus?) {
+    fun bindStatus(status: NetworkApiStatus?) = with(binding) {
         when (status) {
             NetworkApiStatus.LOADING -> {
-                resultInfo?.visibility = View.INVISIBLE
+                resultValue?.visibility = View.INVISIBLE
                 progressBar?.visibility = View.VISIBLE
             }
 
             NetworkApiStatus.ERROR -> {
-                resultInfo?.visibility = View.INVISIBLE
+                resultValue?.visibility = View.INVISIBLE
                 progressBar?.visibility = View.INVISIBLE
-                Toast.makeText(this, "Ошибка", Toast.LENGTH_LONG).show()
             }
 
             NetworkApiStatus.DONE -> {
-                resultInfo?.visibility = View.VISIBLE
+                resultValue?.visibility = View.VISIBLE
                 progressBar?.visibility = View.INVISIBLE
             }
 
             NetworkApiStatus.NO_CONNECT -> {
                 noInternetLayout?.visibility = View.VISIBLE
                 internetLayout?.visibility = View.INVISIBLE
-                Toast.makeText(this, "Проверьте интернет соединение", Toast.LENGTH_LONG).show()
             } else -> {
                 noInternetLayout?.visibility = View.INVISIBLE
                 internetLayout?.visibility = View.VISIBLE

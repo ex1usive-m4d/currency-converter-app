@@ -1,18 +1,18 @@
 package com.currency.lesson1
 
 import android.util.Log
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.*
 import com.currency.lesson1.api.ApiRepository
 import com.currency.lesson1.api.NetworkApiStatus
 import com.currency.lesson1.api.NoConnectivityException
 import com.currency.lesson1.models.CurrencyRate
-import com.currency.lesson1.util.Utility
+import com.currency.lesson1.models.ModelState
 import kotlinx.coroutines.launch
 
-class MainViewModel(private val apiRepository: ApiRepository) : ViewModel() {
+class MainViewModel(
+    private val apiService: ApiRepository,
+    private val handle: SavedStateHandle
+) : ViewModel() {
 
     val rateData: MutableLiveData<CurrencyRate> = MutableLiveData()
     val currenciesList: MutableLiveData<List<String>> = MutableLiveData()
@@ -22,53 +22,67 @@ class MainViewModel(private val apiRepository: ApiRepository) : ViewModel() {
         get() = _status
 
     init {
-        collectCurrenciesList()
         _status.value = NetworkApiStatus.INIT
+        if (!handle.contains("currencies")) {
+            collectCurrenciesList()
+        } else {
+            val modelState = handle.getLiveData<ModelState>("currencies")
+            currenciesList.value = modelState.value?.currencies
+        }
     }
 
-    private fun collectCurrenciesList() {
-        if (currenciesList.value.isNullOrEmpty()) {
+    fun pingStatus()
+    {
+        viewModelScope.launch {
+            try {
+                _status.value = NetworkApiStatus.LOADING
+                if (apiService.ping()) {
+                    _status.value = NetworkApiStatus.INIT
+                } else {
+                    _status.value = NetworkApiStatus.NO_CONNECT
+                }
+            } catch (e: NoConnectivityException) {
+                _status.value = NetworkApiStatus.NO_CONNECT
+            }
+        }
+    }
+
+    fun collectCurrenciesList() {
+        if (currenciesList.value == null) {
             viewModelScope.launch {
                 try {
-                    val response: List<String> = apiRepository.getCurrenciesList()
-                        .asSequence()
-                        .map { it.key }
-                        .sorted()
-                        .toList()
+                    val response: List<String> = apiService.getCurrenciesList()
                     Log.d("resp", response.toString())
                     currenciesList.value = response
+                    handle.set("currencies", ModelState(response))
                     _status.value = NetworkApiStatus.DONE
                 } catch (e: NoConnectivityException) {
                     _status.value = NetworkApiStatus.NO_CONNECT
-                } catch (e: Exception) {
-                    _status.value = NetworkApiStatus.ERROR
                 }
             }
         }
     }
 
     fun calculateCurrencyRate(from: String, to: String) {
-        if (!rateData.value?.id.equals(Utility.getCurrencyString(from, to))) {
-            viewModelScope.launch {
-                try {
-                    _status.value = NetworkApiStatus.LOADING
-                    val response: Map<String, Double>? = apiRepository.convertRate(from, to)
-                    if (!response.isNullOrEmpty()) {
-                        rateData.value = CurrencyRate(
-                            response.keys.first(),
-                            response.getValue(response.keys.first()).toString(),
-                            from,
-                            to
-                        )
-                        _status.value = NetworkApiStatus.DONE
-                    } else {
-                        throw RuntimeException("Ошибка получения данных")
-                    }
-                } catch (e: NoConnectivityException) {
-                    _status.value = NetworkApiStatus.NO_CONNECT
-                } catch (e: Exception) {
-                    _status.value = NetworkApiStatus.ERROR
+        viewModelScope.launch {
+            try {
+                _status.value = NetworkApiStatus.LOADING
+                val response: Map<String, Double>? = apiService.convertRate(from, to)
+                if (!response.isNullOrEmpty()) {
+                    rateData.value = CurrencyRate(
+                        response.keys.first(),
+                        response.getValue(response.keys.first()).toString(),
+                        from,
+                        to
+                    )
+                    _status.value = NetworkApiStatus.DONE
+                } else {
+                    throw RuntimeException("Ошибка получения данных")
                 }
+            } catch (e: NoConnectivityException) {
+                _status.value = NetworkApiStatus.NO_CONNECT
+            } catch (e: Exception) {
+                _status.value = NetworkApiStatus.ERROR
             }
         }
     }

@@ -12,7 +12,7 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/internetLayout"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:visibility="visible">
 
         <TextView
@@ -72,6 +72,7 @@
             android:id="@+id/resultValue"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:visibility="invisible"
             android:text="Результат:"
             android:textAlignment="viewStart"
             android:textSize="24sp"
@@ -86,60 +87,70 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:indeterminateTint="#6C00F8"
-            android:visibility="invisible"
+            android:visibility="visible"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.498"
+            app:layout_constraintHorizontal_bias="0.257"
             app:layout_constraintStart_toStartOf="@+id/convertBtn"
             app:layout_constraintTop_toBottomOf="@+id/resultValue" />
 
         <Button
             android:id="@+id/convertBtn"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="54dp"
             android:text="Конвертировать"
             app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="@+id/progressBar"
-            app:layout_constraintVertical_bias="0.028"
-            tools:layout_editor_absoluteX="0dp" />
+            app:layout_constraintVertical_bias="0.028" />
+
+
 
     </androidx.constraintlayout.widget.ConstraintLayout>
-
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/noInternetLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:visibility="invisible"
-        tools:layout_editor_absoluteX="2dp"
-        tools:layout_editor_absoluteY="81dp">
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.516"
+        tools:layout_editor_absoluteX="0dp">
 
         <TextView
             android:id="@+id/no_internet_heading"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_below="@+id/noInternetLayout"
             android:layout_centerHorizontal="true"
             android:text="Нет доступа в интернет"
             android:textAlignment="center"
             android:textAllCaps="true"
             android:textAppearance="@style/TextAppearance.AppCompat.Large"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            app:layout_constraintBottom_toTopOf="@+id/tryAgainButton"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.495"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.258" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/tryAgainButton"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@+id/noInternetLayout"
             android:layout_alignParentBottom="true"
-            android:layout_marginTop="191dp"
-            android:layout_marginBottom="191dp"
-            android:text="Обновить"
 
+            android:text="Обновить"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="1.0" />
+            app:layout_constraintTop_toTopOf="parent" />
+
     </androidx.constraintlayout.widget.ConstraintLayout>
+
+
 </RelativeLayout>
 

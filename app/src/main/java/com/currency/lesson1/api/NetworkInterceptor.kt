@@ -6,13 +6,6 @@ import okhttp3.Interceptor
 import okhttp3.Request
 import okhttp3.Response
 import okio.IOException
-import android.content.Intent
-import androidx.core.content.ContextCompat
-
-import androidx.core.content.ContextCompat.startActivity
-
-
-
 
 class NetworkConnectionInterceptor(private val context: Context) : Interceptor {
 

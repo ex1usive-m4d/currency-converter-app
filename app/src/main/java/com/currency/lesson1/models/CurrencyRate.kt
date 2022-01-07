@@ -1,14 +1,19 @@
 package com.currency.lesson1.models
 
+import android.os.Parcelable
+import com.currency.lesson1.MainViewModel
 import com.google.gson.annotations.SerializedName
-
-data class CurrencyRateResponse(val response: String)
+import kotlinx.parcelize.Parcelize
 
 data class Rate(val rate: Map<String, Double>)
 
 class Currencies (
-    val currencies: List<Currency>?
+    var currencies: List<Currency>?
 )
+@Parcelize
+class ModelState(
+    val currencies: List<String>
+): Parcelable
 
 class Currency(
     val key: String
