@@ -5,8 +5,10 @@ import androidx.lifecycle.*
 import com.currency.lesson1.api.ApiRepository
 import com.currency.lesson1.api.NetworkApiStatus
 import com.currency.lesson1.api.NoConnectivityException
+import com.currency.lesson1.models.CURRENCIES_STATE_KEY
 import com.currency.lesson1.models.CurrencyRate
 import com.currency.lesson1.models.ModelState
+import com.currency.lesson1.util.Utility
 import kotlinx.coroutines.launch
 
 class MainViewModel(
@@ -23,10 +25,10 @@ class MainViewModel(
 
     init {
         _status.value = NetworkApiStatus.INIT
-        if (!handle.contains("currencies")) {
+        if (!handle.contains(CURRENCIES_STATE_KEY)) {
             collectCurrenciesList()
         } else {
-            val modelState = handle.getLiveData<ModelState>("currencies")
+            val modelState = handle.getLiveData<ModelState>(CURRENCIES_STATE_KEY)
             currenciesList.value = modelState.value?.currencies
         }
     }
@@ -54,7 +56,7 @@ class MainViewModel(
                     val response: List<String> = apiService.getCurrenciesList()
                     Log.d("resp", response.toString())
                     currenciesList.value = response
-                    handle.set("currencies", ModelState(response))
+                    handle.set(CURRENCIES_STATE_KEY, ModelState(response))
                     _status.value = NetworkApiStatus.DONE
                 } catch (e: NoConnectivityException) {
                     _status.value = NetworkApiStatus.NO_CONNECT
@@ -85,5 +87,10 @@ class MainViewModel(
                 _status.value = NetworkApiStatus.ERROR
             }
         }
+    }
+
+    fun getFormattedResult(): String {
+        return "Результат:".plus(rateData.value?.rate?.toDouble()
+            ?.let { Utility.convertResult(it, "1".toDouble()) })
     }
 }

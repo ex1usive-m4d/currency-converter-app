@@ -11,39 +11,46 @@ import androidx.lifecycle.ViewModelProvider
 import com.currency.lesson1.api.ApiRepository
 import com.currency.lesson1.api.NetworkApiStatus
 import com.currency.lesson1.databinding.ActivityMainBinding
+import com.currency.lesson1.models.CURRENCY_EUR
+import com.currency.lesson1.models.CURRENCY_USD
+import com.currency.lesson1.util.Utility
 import com.currency.lesson1.util.Utility.convertResult
+import okhttp3.internal.toImmutableList
 
 class MainActivity : AppCompatActivity() {
 
 
-    private var currencyAdapter: ArrayAdapter<String>? = null
-    private var currencyRepository = ApiRepository(this)
 
-    private val viewModel by viewModels<MainViewModel> { MainViewModelFactory(currencyRepository, this) }
-    private lateinit var binding: ActivityMainBinding
+    private val viewModel by viewModels<MainViewModel> { MainViewModelFactory(ApiRepository(this.applicationContext), this) }
+    private val binding by lazy {
+        ActivityMainBinding.inflate(layoutInflater)
+    }
 
-    @SuppressLint("ResourceType")
+    private val currencyAdapter by lazy {
+        ArrayAdapter<String>(
+        this,
+        android.R.layout.simple_spinner_dropdown_item,
+        arrayListOf(CURRENCY_USD, CURRENCY_EUR)
+    ) }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        viewModel.rateData.observe(this, Observer {rate ->
-            binding.resultValue?.text = "Результат:".plus(convertResult(rate.rate.toDouble(), "1".toDouble()))
+
+        currencyAdapter?.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        binding.spinnerFrom?.adapter = currencyAdapter
+        binding.spinnerTo?.adapter = currencyAdapter
+
+        viewModel.rateData.observe(this, Observer {
+            binding.resultValue?.text = viewModel.getFormattedResult()
         })
 
         viewModel.status.observe(this, { status ->
-            bindStatus(status)
+            setStatus(status)
         })
 
         viewModel.currenciesList.observe(this, Observer { response ->
-            currencyAdapter = ArrayAdapter<String>(
-                this,
-                android.R.layout.simple_spinner_dropdown_item,
-                response.toTypedArray()
-            )
-            currencyAdapter?.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-            binding.spinnerFrom?.adapter = currencyAdapter
-            binding.spinnerTo?.adapter = currencyAdapter
+            updateItems(response)
         })
 
         binding.convertBtn?.setOnClickListener {
@@ -56,7 +63,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    fun bindStatus(status: NetworkApiStatus?) = with(binding) {
+    fun setStatus(status: NetworkApiStatus?) = with(binding) {
         when (status) {
             NetworkApiStatus.LOADING -> {
                 resultValue?.visibility = View.INVISIBLE
@@ -82,6 +89,16 @@ class MainActivity : AppCompatActivity() {
             }
 
         }
+    }
+
+    fun updateItems(items: List<String>) {
+        currencyAdapter?.clear()
+        currencyAdapter?.addAll(items)
+        currencyAdapter?.notifyDataSetChanged()
+
+//        currencyAdapter?.clear()
+//        currencyAdapter?.addAll(listOf(items))
+//        currencyAdapter?.setNotifyOnChange(true)
     }
 
 }
