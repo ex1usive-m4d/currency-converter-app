@@ -19,6 +19,10 @@ class Currency(
     val key: String
 )
 
+const val CURRENCY_USD = "USD"
+const val CURRENCY_EUR = "EUR"
+const val CURRENCIES_STATE_KEY = "currencies"
+
 data class CurrencyRate(
     val id: String,
     @SerializedName("val")

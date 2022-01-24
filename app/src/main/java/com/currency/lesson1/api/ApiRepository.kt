@@ -2,7 +2,8 @@ package com.currency.lesson1.api
 
 import android.content.Context
 import com.currency.lesson1.BuildConfig
-import com.currency.lesson1.models.Currency
+import com.currency.lesson1.models.CURRENCY_EUR
+import com.currency.lesson1.models.CURRENCY_USD
 import com.currency.lesson1.util.RetrofitInstance
 import com.currency.lesson1.util.Utility
 
@@ -22,12 +23,12 @@ class ApiRepository(context: Context) {
     }
 
     suspend fun ping(): Boolean {
-        return !convertRate("USD", "USD").isNullOrEmpty()
+        return !convertRate(CURRENCY_USD, CURRENCY_EUR).isNullOrEmpty()
     }
 
     suspend fun getCurrenciesList(): List<String> =
         RetrofitInstance.provideWebService(context, RetrofitInstance.gsonCurrencies).currencies(this.API_KEY)?.currencies?.asSequence()
             ?.map { it.key }
             ?.sorted()
-            ?.toList() ?: listOf("USD", "EUR", "RUB")
+            ?.toList() ?: listOf(CURRENCY_USD, CURRENCY_EUR)
 }

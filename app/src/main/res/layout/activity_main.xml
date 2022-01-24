@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/mainLayout"
@@ -19,7 +19,7 @@
             android:id="@+id/textView2"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Конвертировть из:"
+            android:text="@string/convert_from_spinner_title"
             android:textAlignment="viewStart"
             android:textSize="16sp"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -60,7 +60,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
-            android:text="Конвертировть в:"
+            android:text="@string/convert_to_spinner_title"
             android:textAlignment="viewStart"
             android:textSize="16sp"
             app:layout_constraintEnd_toEndOf="parent"
@@ -98,12 +98,11 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="54dp"
-            android:text="Конвертировать"
+            android:text="@string/btn_title"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/progressBar"
-            app:layout_constraintVertical_bias="0.028" />
+            app:layout_constraintTop_toTopOf="@+id/progressBar"/>
 
 
 
@@ -124,17 +123,15 @@
             android:layout_height="wrap_content"
             android:layout_below="@+id/noInternetLayout"
             android:layout_centerHorizontal="true"
-            android:text="Нет доступа в интернет"
+            android:text="@string/no_connection_msg"
             android:textAlignment="center"
             android:textAllCaps="true"
             android:textAppearance="@style/TextAppearance.AppCompat.Large"
             android:textStyle="bold"
             app:layout_constraintBottom_toTopOf="@+id/tryAgainButton"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.495"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.258" />
+            app:layout_constraintTop_toTopOf="parent"/>
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/tryAgainButton"
@@ -143,7 +140,7 @@
             android:layout_below="@+id/noInternetLayout"
             android:layout_alignParentBottom="true"
 
-            android:text="Обновить"
+            android:text="@string/btn_reload"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -152,5 +149,5 @@
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 
-</RelativeLayout>
+</FrameLayout>
 
